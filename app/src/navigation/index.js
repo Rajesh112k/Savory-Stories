@@ -3,15 +3,17 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomeScreen from '../screens/HomeScreen';
 import AboutScreen from '../screens/AboutScreen';
-import { auth } from '../../../firebase';
+import { auth, db } from '../../../firebase';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import UserProfile from '../screens/UserProfile';
 import Detailsec from '../screens/Detailsec';
 import LoginRegisterScreen from '../screens/LoginRegisterScreen';
 import RecipeIndexScreen from '../screens/RecipeIndexScreen';
 import RecipeCardsScreen from '../screens/RecipeCardsScreen';
 import SubmitRecipe from '../screens/SubmitRecipe';
-import FirePage from "../screens/FirePage"
+import PersonalizedRecipesScreen from '../screens/PersonalizedRecipesScreen';
+import PersonalizedCollectionScreen from '../screens/personalizedcollections';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -26,40 +28,38 @@ const HomeStack = React.memo(({ route }) => {
       >
         {props => <HomeScreen {...props} initialCategory={category} />}
       </Stack.Screen>
-      <Stack.Screen 
-        name="RecipeCards" 
-        component={RecipeCardsScreen}
-        options={{ title: 'Recipe Cards', headerShown: false }}
-
-      />
-      <Stack.Screen 
-        name="Details" 
-        component={Detailsec}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen 
-        name="FirePage" 
-        component={FirePage} // Add the SubmitRecipe screen
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen 
-        name="SubmitRecipe" 
-        component={SubmitRecipe} // Add the SubmitRecipe screen
-        options={{ headerShown: false }}
-      />
+      <Stack.Screen name="RecipeCards" component={RecipeCardsScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Details" component={Detailsec} options={{ headerShown: false }} />
+      <Stack.Screen name="SubmitRecipe" component={SubmitRecipe} options={{ headerShown: false }} />
+      <Stack.Screen name="CollectionDetails" component={PersonalizedCollectionScreen} options={{ headerShown: false }}/>
     </Stack.Navigator>
-    //It is to navigate from one page to another
   );
 });
 
 export default function AppNavigation() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [hasFavorites, setHasFavorites] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       setIsLoggedIn(!!user);
+      if (user) {
+        const userEmail = user.email;
+        const favoritesQuery = query(collection(db, 'Favorites'), where("userEmail", "==", userEmail));
+        
+        // Listen to real-time updates
+        const unsubscribeFavorites = onSnapshot(favoritesQuery, (snapshot) => {
+          setHasFavorites(!snapshot.empty);
+        });
+
+        // Clean up the listener when the component unmounts or user logs out
+        return () => unsubscribeFavorites();
+      } else {
+        setHasFavorites(false);
+      }
     });
-    return () => unsubscribe();
+
+    return unsubscribeAuth;
   }, []);
 
   const handleLogout = useCallback(async () => {
@@ -71,17 +71,13 @@ export default function AppNavigation() {
   }, []);
 
   return (
-    <Drawer.Navigator
-    screenOptions={{
-          headerShown: false, // Hide the header for the drawer screens
-        }}>
+    <Drawer.Navigator screenOptions={{ headerShown: false }}>
       <Drawer.Screen name="Home" component={HomeStack} initialParams={{ category: "" }} />
       <Drawer.Screen name="About" component={AboutScreen} />
-      <Drawer.Screen 
-        name="Recipe Index" 
-        component={RecipeIndexScreen} 
-        options={{ headerShown: true }} 
-      />
+      {isLoggedIn && hasFavorites && (
+        <Drawer.Screen name="Personalised Collection" component={PersonalizedRecipesScreen} />
+      )}
+      <Drawer.Screen name="Recipe Index" component={RecipeIndexScreen} options={{ headerShown: true }} />
       <Drawer.Screen 
         name={isLoggedIn ? "Logout" : "Login"} 
         component={isLoggedIn ? () => {
@@ -89,10 +85,7 @@ export default function AppNavigation() {
           return null; 
         } : LoginRegisterScreen} 
       />
-      {isLoggedIn && (
-        <Drawer.Screen name="User Profile" component={UserProfile} />
-      )}
+      {isLoggedIn && <Drawer.Screen name="User Profile" component={UserProfile} />}
     </Drawer.Navigator>
-    //It is for Hamburger menu
   );
 }

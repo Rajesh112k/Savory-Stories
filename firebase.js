@@ -1,8 +1,9 @@
 import { initializeApp } from "firebase/app";
 import { initializeAuth, getReactNativePersistence, inMemoryPersistence } from "@firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, collection, getDocs, query, where } from "firebase/firestore";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Your Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyD9c5Uj1i6xoYiFgmnT3tJ-jsLMlNtfIz0",
   authDomain: "savorystories-dceea.firebaseapp.com",
@@ -20,6 +21,9 @@ const app = initializeApp(firebaseConfig);
 export const auth = initializeAuth(app, {
   persistence: inMemoryPersistence, // Use inMemoryPersistence or another option
 });
+
+// Import getAuth here
+import { getAuth } from "firebase/auth";
 
 // Initialize Firestore
 export const db = getFirestore(app);

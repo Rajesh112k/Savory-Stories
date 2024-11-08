@@ -22,6 +22,7 @@ const Detailsec = ({ route }) => {
     const fetchRecipeDetails = async () => {
       try {
         const response = await axios.get(`https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=${API_KEY}`);
+        console.log("the recipe id is:", recipeId)
         setRecipeDetails(response.data);
       } catch (err) {
         setError('Failed to fetch recipe details');
