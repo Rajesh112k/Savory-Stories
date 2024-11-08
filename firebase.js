@@ -5,13 +5,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Your Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyD9c5Uj1i6xoYiFgmnT3tJ-jsLMlNtfIz0",
-  authDomain: "savorystories-dceea.firebaseapp.com",
-  projectId: "savorystories-dceea",
-  storageBucket: "savorystories-dceea.appspot.com",
-  messagingSenderId: "189277746449",
-  appId: "1:189277746449:web:882005fa9d5aff795a08b0",
-  measurementId: "G-V294XWP6M4"
+  apiKey: process.env.EXPO_PUBLIC_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_APP_ID,
+  measurementId: process.env.EXPO_PUBLIC_MEASUREMENT_ID,
 };
 
 // Initialize Firebase app
