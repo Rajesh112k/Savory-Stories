@@ -29,7 +29,7 @@ const RecipeIndexScreen = ({ navigation }) => {
       const fetchedImages = {};
       for (const category of RECIPE_CATEGORIES) {
         try {
-          const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?query=${category}&number=1&apiKey=9354b9e260f5494f9f7bdf02165f3086`);
+          const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?query=${category}&number=1&apiKey=01937fb6b13b4bc696c141a148bef97f`);
 
           if (response.data.results && response.data.results.length > 0) {
             fetchedImages[category] = response.data.results[0].image;

@@ -10,7 +10,7 @@ const RecipeCardsScreen = ({ route, navigation }) => { // Added navigation prop
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?query=${category}&number=10&apiKey=9354b9e260f5494f9f7bdf02165f3086`);
+        const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?query=${category}&number=10&apiKey=01937fb6b13b4bc696c141a148bef97f`);
         setRecipes(response.data.results); // Set the fetched recipes
       } catch (error) {
         console.error(`Error fetching recipes for ${category}:`, error);
@@ -77,6 +77,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  
 });
 
 export default RecipeCardsScreen;

@@ -236,6 +236,14 @@ const PersonalizedRecipesScreen = ({ navigation }) => {
           </View>
         </View>
       </Modal>
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>© 2024 Savory Stories</Text>
+        <View style={styles.socialIcons}>
+          <Ionicons name="logo-facebook" size={24} color="white" style={styles.icon} />
+          <Ionicons name="logo-twitter" size={24} color="white" style={styles.icon} />
+          <Ionicons name="logo-instagram" size={24} color="white" style={styles.icon} />
+        </View>
+      </View>
     </ScrollView>
   );
 };
@@ -356,6 +364,25 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     borderRadius: 5,
+  },
+  footer: {
+    backgroundColor: '#6200ee',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    marginTop: 'auto',
+  },
+  footerText: {
+    color: '#fff',
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  socialIcons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  icon: {
+    margin: 10,
   },
 });
 

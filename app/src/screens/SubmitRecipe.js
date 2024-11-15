@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Ionicons } from '@expo/vector-icons'; 
 import {
   View,
   Text,
@@ -40,7 +41,7 @@ function SubmitRecipe({ navigation }) {
   const handleSubmit = async () => {
     const user = auth.currentUser;
     if (!user) return;
-
+  
     const newRecipe = {
       recipeName,
       totalTime,
@@ -53,15 +54,17 @@ function SubmitRecipe({ navigation }) {
       userId: user.uid,
       createdAt: new Date().toISOString(),
     };
-
+  
     try {
       await setDoc(doc(db, "Recipes", `${user.uid}_${recipeName}`), newRecipe);
       console.log("Recipe submitted successfully!");
+      alert("Recipe submitted successfully!");
       navigation.navigate("HomeScreen"); // Navigate back to HomeScreen after submission
     } catch (error) {
       console.error("Error submitting recipe:", error.message);
     }
   };
+  
 
   return (
     <View style={styles.container}>
@@ -72,42 +75,49 @@ function SubmitRecipe({ navigation }) {
         placeholder="Recipe Name"
         value={recipeName}
         onChangeText={setRecipeName}
+        placeholderTextColor="#fff"
       />
       <TextInput
         style={styles.input}
         placeholder="Total Time (e.g., 30 mins)"
         value={totalTime}
         onChangeText={setTotalTime}
+        placeholderTextColor="#fff"
       />
       <TextInput
         style={styles.input}
         placeholder="Servings"
         value={servings}
         onChangeText={setServings}
+        placeholderTextColor="#fff"
       />
       <TextInput
         style={styles.input}
         placeholder="Yield"
         value={yieldAmount}
         onChangeText={setYieldAmount}
+        placeholderTextColor="#fff"
       />
       <TextInput
         style={styles.input}
         placeholder="Ingredients (comma separated)"
         value={ingredients}
         onChangeText={setIngredients}
+        placeholderTextColor="#fff"
       />
       <TextInput
         style={styles.input}
         placeholder="Instructions"
         value={instructions}
         onChangeText={setInstructions}
+        placeholderTextColor="#fff"
       />
       <TextInput
         style={styles.input}
         placeholder="Summary"
         value={summary}
         onChangeText={setSummary}
+        placeholderTextColor="#fff"
       />
 
       <TouchableOpacity style={styles.imagePicker} onPress={handleImagePicker}>
@@ -119,6 +129,20 @@ function SubmitRecipe({ navigation }) {
       {image && <Image source={{ uri: image }} style={styles.image} />}
 
       <Button title="Submit Recipe" onPress={handleSubmit} />
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>© 2024 Savory Stories</Text>
+        <View style={styles.socialIcons}>
+          <TouchableOpacity>
+            <Ionicons name="logo-facebook" size={30} color="#fff" style={styles.icon} />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Ionicons name="logo-twitter" size={30} color="#fff" style={styles.icon} />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Ionicons name="logo-instagram" size={30} color="#fff" style={styles.icon} />
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 }
@@ -127,7 +151,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'grey',
     borderRadius: 10,
   },
   title: {
@@ -158,6 +182,24 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     marginVertical: 10,
+  },
+  footer: {
+    backgroundColor: '#6200ee',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  footerText: {
+    color: '#fff',
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  socialIcons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  icon: {
+    margin: 5,
   },
 });
 

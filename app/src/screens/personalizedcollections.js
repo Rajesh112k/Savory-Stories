@@ -41,7 +41,7 @@ const PersonalizedCollectionScreen = ({ navigation, route }) => {
   }, [collectionName]); // Fetch recipes when collectionName changes
 
   const renderRecipeCard = ({ item }) => (
-    <TouchableOpacity style={styles.card} onPress={() => console.log("Navigate to recipe details")}>
+    <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Details', { recipeId: item.id })}>
       <Image source={{ uri: item.image }} style={styles.image} />
       <View style={styles.cardContent}>
         <Text style={styles.title}>{item.title}</Text>
@@ -52,15 +52,16 @@ const PersonalizedCollectionScreen = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-  <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-    <Text style={styles.headerText}>Savory Stories</Text>
-  </TouchableOpacity>
-  <View style={styles.headerIcons}>
-    <TouchableOpacity onPress={() => navigation.openDrawer()}>
-      <Ionicons name="menu" size={28} color="black" />
-    </TouchableOpacity>
-  </View>
-</View>
+        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+          <Text style={styles.headerText}>Savory Stories</Text>
+        </TouchableOpacity>
+        <View style={styles.headerIcons}>
+          <TouchableOpacity onPress={() => navigation.openDrawer()}>
+            <Ionicons name="menu" size={28} color="black" />
+          </TouchableOpacity>
+        </View>
+      </View>
+      
       <Text style={styles.headerText1}>{collectionName} Recipes</Text>
       {loading ? (
         <Text>Loading...</Text>
@@ -73,6 +74,16 @@ const PersonalizedCollectionScreen = ({ navigation, route }) => {
           contentContainerStyle={styles.flatListContent}
         />
       )}
+
+      {/* Footer Section */}
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>© 2024 Savory Stories</Text>
+        <View style={styles.socialIcons}>
+          <Ionicons name="logo-facebook" size={24} color="white" style={styles.icon} />
+          <Ionicons name="logo-twitter" size={24} color="white" style={styles.icon} />
+          <Ionicons name="logo-instagram" size={24} color="white" style={styles.icon} />
+        </View>
+      </View>
     </View>
   );
 };
@@ -127,6 +138,25 @@ const styles = StyleSheet.create({
   headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  footer: {
+    backgroundColor: '#6200ee',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    marginTop: 'auto',
+  },
+  footerText: {
+    color: '#fff',
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  socialIcons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  icon: {
+    margin: 10,
   },
 });
 

@@ -1,3 +1,4 @@
+// AppNavigation.js
 import React, { useEffect, useState, useCallback } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
@@ -14,29 +15,32 @@ import RecipeCardsScreen from '../screens/RecipeCardsScreen';
 import SubmitRecipe from '../screens/SubmitRecipe';
 import PersonalizedRecipesScreen from '../screens/PersonalizedRecipesScreen';
 import PersonalizedCollectionScreen from '../screens/personalizedcollections';
+import WelcomeScreen from '../screens/WelcomeScreen';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
+// HomeStack Navigator
 const HomeStack = React.memo(({ route }) => {
   const { category } = route.params || {};
   return (
     <Stack.Navigator>
       <Stack.Screen 
         name="HomeScreen" 
-        options={{ headerShown: false }}
-      >
-        {props => <HomeScreen {...props} initialCategory={category} />}
-      </Stack.Screen>
+        component={HomeScreen} 
+        options={{ headerShown: false }} 
+        initialParams={{ category }} 
+      />
       <Stack.Screen name="RecipeCards" component={RecipeCardsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Details" component={Detailsec} options={{ headerShown: false }} />
       <Stack.Screen name="SubmitRecipe" component={SubmitRecipe} options={{ headerShown: false }} />
-      <Stack.Screen name="CollectionDetails" component={PersonalizedCollectionScreen} options={{ headerShown: false }}/>
+      <Stack.Screen name="CollectionDetails" component={PersonalizedCollectionScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 });
 
-export default function AppNavigation() {
+// Main Drawer Navigator
+function MainDrawerNavigator() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [hasFavorites, setHasFavorites] = useState(false);
 
@@ -87,5 +91,15 @@ export default function AppNavigation() {
       />
       {isLoggedIn && <Drawer.Screen name="User Profile" component={UserProfile} />}
     </Drawer.Navigator>
+  );
+}
+
+// Root Navigator with Welcome Screen
+export default function AppNavigation() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Welcome" component={WelcomeScreen} />
+      <Stack.Screen name="MainDrawer" component={MainDrawerNavigator} />
+    </Stack.Navigator>
   );
 }

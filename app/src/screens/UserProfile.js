@@ -70,69 +70,106 @@ function UserProfile() {
   };
 
   return (
-    <View style={styles.container}>
-      {loading ? (
-        <ActivityIndicator size="large" color="#ffffff" />
-      ) : userDetails ? (
-        <>
-          <Text style={styles.welcomeText}>Welcome {userDetails.firstName}!</Text>
-          <Text style={styles.infoText}>Email: {userDetails.email}</Text>
-          <Text style={styles.label}>First Name:</Text>
-          {isEditing ? (
-            <TextInput
-              style={styles.input}
-              value={updatedFirstName}
-              onChangeText={setUpdatedFirstName}
-            />
-          ) : (
-            <Text style={styles.valueText}>{userDetails.firstName}</Text>
-          )}
+    <>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+          <Text style={styles.headerText}>Savory Stories</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.openDrawer()}>
+          <Ionicons name="menu" size={28} color="black" />
+        </TouchableOpacity>
+      </View>
 
-          <Text style={styles.label}>Last Name:</Text>
-          {isEditing ? (
-            <TextInput
-              style={styles.input}
-              value={updatedLastName}
-              onChangeText={setUpdatedLastName}
-            />
-          ) : (
-            <Text style={styles.valueText}>{userDetails.lastName}</Text>
-          )}
-
-          <View style={styles.buttonContainer}>
+      <View style={styles.container}>
+        {loading ? (
+          <ActivityIndicator size="large" color="#ffffff" />
+        ) : userDetails ? (
+          <>
+            <Text style={styles.welcomeText}>Welcome {userDetails.firstName}!</Text>
+            <Text style={styles.infoText}>Email: {userDetails.email}</Text>
+            <Text style={styles.label}>First Name:</Text>
             {isEditing ? (
-              <>
-                <TouchableOpacity style={styles.button} onPress={handleUpdateProfile}>
-                  <Text style={styles.buttonText}>Save Changes</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={() => setIsEditing(false)}>
-                  <Text style={styles.buttonText}>Cancel</Text>
-                </TouchableOpacity>
-              </>
+              <TextInput
+                style={styles.input}
+                value={updatedFirstName}
+                onChangeText={setUpdatedFirstName}
+              />
             ) : (
-              <TouchableOpacity style={styles.button} onPress={() => setIsEditing(true)}>
-                <Text style={styles.buttonText}>Edit Profile</Text>
-              </TouchableOpacity>
+              <Text style={styles.valueText}>{userDetails.firstName}</Text>
             )}
-          </View>
 
-          <TouchableOpacity style={styles.addRecipeButton} onPress={() => navigation.navigate('SubmitRecipe')}>
-            <Text style={styles.buttonText}>Add a New Recipe</Text>
-          </TouchableOpacity>
+            <Text style={styles.label}>Last Name:</Text>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={updatedLastName}
+                onChangeText={setUpdatedLastName}
+              />
+            ) : (
+              <Text style={styles.valueText}>{userDetails.lastName}</Text>
+            )}
 
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={24} color="white" />
-            <Text style={styles.logoutText}>Logout</Text>
+            <View style={styles.buttonContainer}>
+              {isEditing ? (
+                <>
+                  <TouchableOpacity style={styles.button} onPress={handleUpdateProfile}>
+                    <Text style={styles.buttonText}>Save Changes</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.button} onPress={() => setIsEditing(false)}>
+                    <Text style={styles.buttonText}>Cancel</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <TouchableOpacity style={styles.button} onPress={() => setIsEditing(true)}>
+                  <Text style={styles.buttonText}>Edit Profile</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            <TouchableOpacity style={styles.addRecipeButton} onPress={() => navigation.navigate('SubmitRecipe')}>
+              <Text style={styles.buttonText}>Add a New Recipe</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.addRecipeButton} onPress={() => navigation.navigate('Personalised Collection')}>
+              <Text style={styles.buttonText}>Personalized Collections</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+              <Ionicons name="log-out-outline" size={24} color="white" />
+              <Text style={styles.logoutText}>Logout</Text>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <Text style={styles.errorText}>User not found!</Text>
+        )}
+      </View>
+
+      {/* Footer comes after the recipe content */}
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>© 2024 Savory Stories. All rights reserved.</Text>
+        <View style={styles.socialLinks}>
+          <TouchableOpacity onPress={() => console.log("Navigate to Facebook")}>
+            <Ionicons name="logo-facebook" size={30} color="white" style={styles.icon} />
           </TouchableOpacity>
-        </>
-      ) : (
-        <Text style={styles.errorText}>User not found!</Text>
-      )}
-    </View>
+          <TouchableOpacity onPress={() => console.log("Navigate to Twitter")}>
+            <Ionicons name="logo-twitter" size={30} color="white" style={styles.icon} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => console.log("Navigate to Instagram")}>
+            <Ionicons name="logo-instagram" size={30} color="white" style={styles.icon} />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 20 },
+  headerText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#ff6347',
+  },
   container: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -212,6 +249,24 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 16,
     color: 'white',
+  },
+  footer: {
+    padding: 20,
+    backgroundColor: '#000',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  footerText: {
+    color: '#ffffff',
+    fontSize: 14,
+    marginBottom: 10,
+  },
+  socialLinks: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  icon: {
+    marginHorizontal: 10,
   },
 });
 

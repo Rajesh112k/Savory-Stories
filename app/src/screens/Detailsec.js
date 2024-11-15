@@ -2,14 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native'; 
-// Import useNavigation for navigation
+import { Ionicons } from '@expo/vector-icons'; // Import Ionicons for social media icons
 
-const API_KEY = '9354b9e260f5494f9f7bdf02165f3086';
+const API_KEY = '01937fb6b13b4bc696c141a148bef97f';
 
 const Detailsec = ({ route }) => {
   const { recipeId } = route.params;
   const navigation = useNavigation(); 
-  // Use useNavigation hook for navigation
   const [recipeDetails, setRecipeDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,7 +21,6 @@ const Detailsec = ({ route }) => {
     const fetchRecipeDetails = async () => {
       try {
         const response = await axios.get(`https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=${API_KEY}`);
-        console.log("the recipe id is:", recipeId)
         setRecipeDetails(response.data);
       } catch (err) {
         setError('Failed to fetch recipe details');
@@ -47,32 +45,19 @@ const Detailsec = ({ route }) => {
     : null;
 
   const summary = recipeDetails.summary;
-
   const calories = summary.match(/(\d+)\s+calories/i)?.[1] || 'N/A';
   const fat = summary.match(/(\d+)g\s+of\s+fat/i)?.[1] || 'N/A';
   const protein = summary.match(/(\d+)g\s+of\s+protein/i)?.[1] || 'N/A';
 
-  const scrollToNutrition = () => {
-    nutritionRef.current.measure((fx, fy, width, height, px, py) => {
-      scrollViewRef.current.scrollTo({ y: py, animated: true });
-    });
-  };
-
-  // Adjust ingredient quantity based on the multiplier
   const adjustedIngredients = recipeDetails.extendedIngredients.map(ingredient => ({
     ...ingredient,
     quantity: ingredient.amount * multiplier, 
-    // Adjust quantity
   }));
 
-  const stripHtmlTags = (html) => {
-    return html.replace(/<[^>]+>/g, ''); 
-    // Simple regex to remove HTML tags
-  };
+  const stripHtmlTags = (html) => html.replace(/<[^>]+>/g, ''); 
 
   return (
     <ScrollView ref={scrollViewRef} style={styles.container}>
-      {/* Header with Savory Stories title and hamburger menu */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')}>
           <Text style={styles.headerText}>Savory Stories</Text>
@@ -85,21 +70,17 @@ const Detailsec = ({ route }) => {
       <Text style={styles.title}>{recipeDetails.title}</Text>
       <Image source={{ uri: recipeDetails.image }} style={styles.image} />
 
-      {/* Tabular format for recipe details */}
+      {/* Recipe details */}
       <View style={styles.tableContainer}>
         <View style={styles.tableRow}>
-          {recipeDetails.preparationMinutes && (
-            <View style={styles.tableCellContainer}>
-              <Text style={styles.tableCellLabel}>Prep Time:</Text>
-              <Text style={styles.tableCell}>{recipeDetails.preparationMinutes || 'N/A'} minutes</Text>
-            </View>
-          )}
-          {recipeDetails.cookingMinutes && (
-            <View style={styles.tableCellContainer}>
-              <Text style={styles.tableCellLabel}>Cook Time:</Text>
-              <Text style={styles.tableCell}>{recipeDetails.cookingMinutes || 'N/A'} minutes</Text>
-            </View>
-          )}
+          <View style={styles.tableCellContainer}>
+            <Text style={styles.tableCellLabel}>Prep Time:</Text>
+            <Text style={styles.tableCell}>{recipeDetails.preparationMinutes || 'N/A'} minutes</Text>
+          </View>
+          <View style={styles.tableCellContainer}>
+            <Text style={styles.tableCellLabel}>Cook Time:</Text>
+            <Text style={styles.tableCell}>{recipeDetails.cookingMinutes || 'N/A'} minutes</Text>
+          </View>
         </View>
 
         <View style={styles.tableRow}>
@@ -126,25 +107,9 @@ const Detailsec = ({ route }) => {
           )}
         </View>
 
-        <TouchableOpacity onPress={scrollToNutrition}>
+        <TouchableOpacity onPress={() => nutritionRef.current.measure((fx, fy, width, height, px, py) => scrollViewRef.current.scrollTo({ y: py, animated: true }))}>
           <Text style={styles.linkText}>Nutritional Facts</Text>
         </TouchableOpacity>
-      </View>
-
-      {/* Quantity Selector */}
-      <View style={styles.quantitySelector}>
-        <Text style={styles.quantityLabel}>Select Quantity:</Text>
-        <View style={styles.quantityButtons}>
-          {['1x', '2x', '3x'].map((label, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[styles.quantityButton, multiplier === index + 1 && styles.selectedButton]}
-              onPress={() => setMultiplier(index + 1)} // Update multiplier
-            >
-              <Text style={styles.quantityButtonText}>{label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
       </View>
 
       {/* Ingredients Section */}
@@ -177,6 +142,22 @@ const Detailsec = ({ route }) => {
         <Text style={styles.nutritionItem}>Calories: {calories}</Text>
         <Text style={styles.nutritionItem}>Fat: {fat}</Text>
         <Text style={styles.nutritionItem}>Protein: {protein}</Text>
+      </View>
+
+      {/* Footer Section */}
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>© 2024 Savory Stories</Text>
+        <View style={styles.socialIcons}>
+          <TouchableOpacity>
+            <Ionicons name="logo-facebook" size={30} color="#fff" style={styles.icon} />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Ionicons name="logo-twitter" size={30} color="#fff" style={styles.icon} />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Ionicons name="logo-instagram" size={30} color="#fff" style={styles.icon} />
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );
@@ -255,7 +236,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#6200ee',
   },
   quantityButtonText: {
-    color: '#fff',
+    color: '#000',
   },
   ingredientsContainer: {
     marginBottom: 20,
@@ -267,7 +248,6 @@ const styles = StyleSheet.create({
   },
   ingredientItem: {
     fontSize: 16,
-    marginBottom: 5,
   },
   instructionsContainer: {
     marginBottom: 20,
@@ -281,7 +261,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   instructionText: {
-    marginBottom: 10,
+    fontSize: 16,
   },
   nutritionContainer: {
     marginBottom: 20,
@@ -293,6 +273,24 @@ const styles = StyleSheet.create({
   },
   nutritionItem: {
     fontSize: 16,
+  },
+  footer: {
+    backgroundColor: '#6200ee',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  footerText: {
+    color: '#fff',
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  socialIcons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  icon: {
+    margin: 5,
   },
 });
 

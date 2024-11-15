@@ -8,7 +8,7 @@ import { getFirestore, collection, getDocs, addDoc, query, where, updateDoc, doc
 import { getAuth } from 'firebase/auth';
 import firebase from '../../../firebase'; // Adjust the path if necessary
 
-const API_KEY = '9354b9e260f5494f9f7bdf02165f3086'; // Replace with your Spoonacular API Key
+const API_KEY = '01937fb6b13b4bc696c141a148bef97f'; // Replace with your Spoonacular API Key
 const db = getFirestore(firebase);
 
 const HomeScreen = ({ navigation, initialCategory }) => {
@@ -209,12 +209,18 @@ const HomeScreen = ({ navigation, initialCategory }) => {
       style={styles.backgroundImage}
       imageStyle={styles.imageStyle}
     >
+       
+      
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerText}>Savory Stories</Text>
-          <TouchableOpacity onPress={() => navigation.openDrawer()}>
-            <Ionicons name="menu" size={28} color="black" />
-          </TouchableOpacity>
+      <View style={styles.header}>
+      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+      <Text style={styles.headerText}>Savory Stories</Text>
+            </TouchableOpacity>
+          <View style={styles.headerIcons}>
+            <TouchableOpacity onPress={() => navigation.openDrawer()}>
+              <Ionicons name="menu" size={28} color="black" />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <SearchBar
@@ -229,96 +235,266 @@ const HomeScreen = ({ navigation, initialCategory }) => {
           inputStyle={{ color: 'black' }}
         />
 
-          {latestRecipes.length > 0 && (
-            <>
-              <Text style={styles.sectionTitle}>Latest Recipes</Text>
-              <FlatList
-                data={latestRecipes}
-                renderItem={renderRecipeCard}
-                keyExtractor={(item) => item.id.toString()}
-                numColumns={numColumns}
-                style={styles.recipeList}
-              />
-            </>
-          )}
+        {trendingRecipes.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Trending Recipes</Text>
+            <FlatList
+              data={trendingRecipes}
+              renderItem={renderRecipeCard}
+              keyExtractor={(item) => item.id.toString()}
+              numColumns={numColumns}
+              style={styles.recipeList}
+            />
+          </>
+        )}
 
-          {trendingRecipes.length > 0 && (
-            <>
-              <Text style={styles.sectionTitle}>Trending Recipes</Text>
-              <FlatList
-                data={trendingRecipes}
-                renderItem={renderRecipeCard}
-                keyExtractor={(item) => item.id.toString()}
-                numColumns={numColumns}
-                style={styles.recipeList}
-              />
-            </>
-          )}
+        {latestRecipes.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Latest Recipes</Text>
+            <FlatList
+              data={latestRecipes}
+              renderItem={renderRecipeCard}
+              keyExtractor={(item) => item.id.toString()}
+              numColumns={numColumns}
+              style={styles.recipeList}
+            />
+          </>
+        )}
 
-          {popupVisible && (
-            <Modal
-              visible={popupVisible}
-              animationType="slide"
-              transparent
-              onRequestClose={() => setPopupVisible(false)}
-            >
-              <View style={styles.modalOverlay}>
-                <View style={styles.modalContainer}>
-                  <Text style={styles.modalTitle}>Select Collection</Text>
-                  {collections.map((collection, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      style={[
-                        styles.collectionButton,
-                        selectedCollections[collection.collectionName] ? styles.selectedCollection : null
-                      ]}
-                      onPress={() => handleCollectionChange(collection.collectionName)}
-                    >
-                      <Text style={styles.collectionText}>{collection.collectionName}</Text>
-                    </TouchableOpacity>
-                  ))}
-                  <TextInput
-                    style={styles.collectionInput}
-                    placeholder="New Collection Name"
-                    value={newCollectionName}
-                    onChangeText={setNewCollectionName}
-                  />
-                  <TouchableOpacity style={styles.doneButton} onPress={handleDoneButton}>
-                    <Text style={styles.doneButtonText}>Done</Text>
+        {popupVisible && (
+          <Modal
+            visible={popupVisible}
+            animationType="slide"
+            transparent
+            onRequestClose={() => setPopupVisible(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContainer}>
+                <Text style={styles.modalTitle}>Select Collection</Text>
+                <TouchableOpacity style={styles.closeButton} onPress={() => setPopupVisible(false)}>
+                  <Ionicons name="close" size={24} color="black" />
+                </TouchableOpacity>
+
+                {Object.keys(selectedCollections).map((collectionName) => (
+                  <TouchableOpacity
+                    key={collectionName}
+                    style={[
+                      styles.collectionButton,
+                      selectedCollections[collectionName] && styles.selectedCollectionButton,
+                    ]}
+                    onPress={() => handleCollectionChange(collectionName)}
+                  >
+                    <Text>{collectionName}</Text>
                   </TouchableOpacity>
-                </View>
+                ))}
+
+                <TextInput
+                  value={newCollectionName}
+                  onChangeText={setNewCollectionName}
+                  placeholder="Create new collection"
+                  style={styles.newCollectionInput}
+                />
+
+                <TouchableOpacity style={styles.doneButton} onPress={handleDoneButton}>
+                  <Text style={styles.doneButtonText}>Done</Text>
+                </TouchableOpacity>
               </View>
-            </Modal>
-          )}
+            </View>
+          </Modal>
+        )}
+
+<View style={styles.footer}>
+          <Text style={styles.footerText}>© 2024 Savory Stories. All Rights Reserved.</Text>
+          <View style={styles.footerLinks}>
+            <TouchableOpacity onPress={() => navigation.navigate('About')}>
+              <Text style={styles.footerLink}>About Us</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('PrivacyPolicy')}>
+              <Text style={styles.footerLink}>Privacy Policy</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('TermsOfService')}>
+              <Text style={styles.footerLink}>Terms of Service</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.footerSocial}>
+            <TouchableOpacity onPress={() => Linking.openURL('https://facebook.com')}>
+              <Ionicons name="logo-facebook" size={24} color="black" style={styles.socialIcon} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => Linking.openURL('https://twitter.com')}>
+              <Ionicons name="logo-twitter" size={24} color="black" style={styles.socialIcon} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => Linking.openURL('https://instagram.com')}>
+              <Ionicons name="logo-instagram" size={24} color="black" style={styles.socialIcon} />
+            </TouchableOpacity>
+          </View>
         </View>
-      </ImageBackground>
+      </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  // Define styles for all elements
-  container: { flex: 1, paddingHorizontal: 20 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 20 },
-  headerText: { fontSize: 24, fontWeight: 'bold' },
-  searchContainer: { marginBottom: 10 },
-  searchInputContainer: { borderRadius: 10 },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginVertical: 1, color:'red' },
-  recipeList: { marginBottom: 20 },
-  card: { flex: 1, margin: 5, borderRadius: 10, overflow: 'hidden', backgroundColor: '#fff' },
-  image: { width: '100%', height: 150 },
-  cardContent: { padding: 10, flexDirection: 'row', justifyContent: 'space-between' },
-  title: { fontSize: 16, fontWeight: 'bold' },
-  modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalContainer: { width: '80%', padding: 20, backgroundColor: 'white', borderRadius: 10, alignItems: 'center' },
-  modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 10 },
-  collectionButton: { padding: 10, borderRadius: 5, marginVertical: 5, backgroundColor: 'lightgray', alignItems: 'center' },
-  selectedCollection: { backgroundColor: '#4CAF50' },
-  collectionText: { fontSize: 16, color: 'black' },
-  collectionInput: { width: '100%', padding: 10, borderColor: '#ddd', borderWidth: 1, borderRadius: 5, marginTop: 10 },
-  doneButton: { marginTop: 15, backgroundColor: '#4CAF50', padding: 10, borderRadius: 5 },
-  doneButtonText: { color: 'white', fontWeight: 'bold' },
-  backgroundImage: { flex: 1 },
-  imageStyle: { opacity: 0.5 },
+  backgroundImage: {
+    flex: 1,
+  },
+  imageStyle: {
+    opacity: 0.8,
+  },
+  container: {
+    flex: 1,
+    padding: 10,
+  },
+  searchContainer: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  searchInputContainer: {
+    backgroundColor: 'white',
+  },
+  sectionTitle: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    marginTop: 20,
+    color: '#ff6347'
+  },
+  recipeList: {
+    marginTop: 10,
+  },
+  card: {
+    flex: 1,
+    margin: 5,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  image: {
+    height: 120,
+    borderRadius: 8,
+  },
+  cardContent: {
+    padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  footer: {
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  footerText: {
+    fontSize: 12,
+    color: '#555',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 8,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+  collectionButton: {
+    padding: 10,
+    marginVertical: 5,
+    backgroundColor: '#f1f1f1',
+    borderRadius: 5,
+    width: '100%',
+    alignItems: 'center',
+  },
+  selectedCollectionButton: {
+    backgroundColor: '#87CEEB',
+  },
+  newCollectionInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    marginTop: 10,
+    width: '100%',
+  },
+  doneButton: {
+    backgroundColor: '#4CAF50',
+    padding: 10,
+    marginTop: 20,
+    borderRadius: 5,
+    width: '100%',
+    alignItems: 'center',
+  },
+  doneButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  footer: {
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f8f8f8',
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
+  },
+  footerText: {
+    fontSize: 12,
+    color: '#555',
+    marginBottom: 5,
+  },
+  footerLinks: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 5,
+  },
+  footerLink: {
+    fontSize: 14,
+    color: '#007BFF',
+    marginHorizontal: 10,
+  },
+  footerSocial: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  socialIcon: {
+    marginHorizontal: 15,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  headerText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#ff6347',
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  }
 });
 
 export default HomeScreen;
