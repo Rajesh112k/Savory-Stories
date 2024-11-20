@@ -9,7 +9,7 @@ import { getFirestore, collection, getDocs, addDoc, query, where, updateDoc, doc
 import { getAuth } from 'firebase/auth';
 import firebase from '../../../firebase'; // Adjust the path if necessary
 
-const API_KEY = '01937fb6b13b4bc696c141a148bef97f'; // Replace with your Spoonacular API Key
+const API_KEY = '6cd5e57794674c35b8c1d5619fbb46b8'; // Replace with your Spoonacular API Key
 const db = getFirestore(firebase);
 
 const HomeScreen = ({ navigation, initialCategory }) => {
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
   },
   card: {
     // Set a fixed height for the card
-    height: 285, // Adjust as per your design needs
+    height: 270, // Adjust as per your design needs
     marginBottom: 10,
     backgroundColor: 'white',
     borderRadius: 10,
