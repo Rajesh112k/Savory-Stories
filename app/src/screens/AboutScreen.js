@@ -5,10 +5,11 @@ import { Ionicons } from '@expo/vector-icons'; // Updated to use Expo's vector i
 const AboutScreen = ({ navigation }) => {
   return (
     <ImageBackground 
-      source={require('../../../bg.png')} // Make sure to use the correct path for your background image
+      source={require('../../../recipemusic.jpeg')} // Make sure to use the correct path for your background image
       style={styles.backgroundImage}
       imageStyle={styles.imageStyle}
     >
+      <View style={styles.overlay} />
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
@@ -68,11 +69,13 @@ const AboutScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
-    justifyContent: 'center',
-    padding: 10,
   },
   imageStyle: {
-    opacity: 0.5, // Image opacity to blend with the overlay
+    resizeMode: 'cover'
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject, // Makes the overlay cover the entire view
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black
   },
   container: {
     flex: 1,

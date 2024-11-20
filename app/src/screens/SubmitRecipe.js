@@ -8,6 +8,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  ImageBackground
 } from "react-native";
 import { auth, db } from "../../../firebase";
 import { doc, setDoc } from "firebase/firestore";
@@ -67,7 +68,24 @@ function SubmitRecipe({ navigation }) {
   
 
   return (
+    <ImageBackground 
+      source={require('../../../recipemusic.jpeg')}
+      style={styles.backgroundImage}
+      imageStyle={styles.imageStyle}
+    >
+      <View style={styles.overlay} />
+      <View style={styles.header}>
+      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+      <Text style={styles.headerText}>Savory Stories</Text>
+            </TouchableOpacity>
+          <View style={styles.headerIcons}>
+            <TouchableOpacity onPress={() => navigation.openDrawer()}>
+              <Ionicons name="menu" size={28} color="#ff6347" />
+            </TouchableOpacity>
+          </View>
+        </View>
     <View style={styles.container}>
+
       <Text style={styles.title}>Submit Your Recipe</Text>
 
       <TextInput
@@ -144,14 +162,45 @@ function SubmitRecipe({ navigation }) {
         </View>
       </View>
     </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+  },
+  imageStyle: {
+    resizeMode: 'cover'
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject, // Makes the overlay cover the entire view
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 20,
+    marginHorizontal: 20,
+  },
+  headerText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#ff6347',
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   container: {
     flex: 1,
+    justifyContent: 'center', // Centers form vertically
+    alignItems: 'center', // Centers form horizontally
     padding: 20,
-    backgroundColor: 'grey',
+  },
+  formWrapper: {
+    width: '100%',
     borderRadius: 10,
   },
   title: {
@@ -159,6 +208,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: '#ff6347',
     marginBottom: 20,
+    textAlign: 'center',
   },
   input: {
     height: 40,
@@ -167,6 +217,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     paddingLeft: 10,
     color: 'white',
+    width: '90%',
   },
   imagePicker: {
     backgroundColor: '#32cd32',
@@ -182,10 +233,12 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     marginVertical: 10,
+    alignSelf: 'center',
   },
   footer: {
+    marginTop: 20,
+    width: '100%',
     backgroundColor: '#6200ee',
-    paddingVertical: 15,
     paddingHorizontal: 20,
     alignItems: 'center',
   },
@@ -202,5 +255,6 @@ const styles = StyleSheet.create({
     margin: 5,
   },
 });
+
 
 export default SubmitRecipe;

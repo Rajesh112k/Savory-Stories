@@ -27,14 +27,12 @@ const WelcomeScreen = ({ navigation }) => {
         duration: 2000, // Set to 2 seconds
         useNativeDriver: true,
       }),
-      Animated.loop(
-        Animated.timing(rotateAnim, {
-          toValue: 2, // Rotate twice
-          duration: 3000, // Complete two full rotations in 3 seconds
-          easing: Easing.linear,
-          useNativeDriver: true,
-        })
-      ),
+      Animated.timing(rotateAnim, {
+        toValue: 2, // Rotate twice
+        duration: 2000, // Complete two full rotations in 2 seconds
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
       Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
@@ -54,7 +52,7 @@ const WelcomeScreen = ({ navigation }) => {
     // Automatically navigate to MainDrawer after 10 seconds
     const timer = setTimeout(() => {
       navigation.navigate('MainDrawer');
-    }, 10000); // Set to 10 seconds
+    }, 5000); // Set to 10 seconds
 
     return () => clearTimeout(timer);
   }, [fadeAnim, slideAnim, scaleAnim, pulseAnim, rotateAnim, navigation]);

@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, ImageBackground, TouchableOpacity } from "react-native";
 import { createUserWithEmailAndPassword, fetchSignInMethodsForEmail, signInWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../../../firebase";
 import { setDoc, doc } from "firebase/firestore";
 import { toast } from "react-toastify"; // Consider using a React Native equivalent for toast notifications
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { Ionicons } from '@expo/vector-icons';
 
 function LoginRegisterScreen() {
   const navigation = useNavigation(); // Initialize navigation
@@ -80,8 +81,26 @@ function LoginRegisterScreen() {
   };
 
   return (
+    <ImageBackground 
+      source={require('../../../recipemusic.jpeg')}
+      style={styles.backgroundImage}
+      imageStyle={styles.imageStyle}
+    >
+      <View style={styles.overlay} />
+      <View style={styles.headc}>
+      <View style={styles.header}>
+      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+      <Text style={styles.headerText}>Savory Stories</Text>
+            </TouchableOpacity>
+          <View style={styles.headerIcons}>
+            <TouchableOpacity onPress={() => navigation.openDrawer()}>
+              <Ionicons name="menu" size={28} color="#ff6347" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
     <View style={styles.container}>
-      <Text style={styles.header}>{isRegistering ? "Sign Up" : "Login"}</Text>
+      <Text style={styles.header1}>{isRegistering ? "Sign Up" : "Login"}</Text>
 
       {isRegistering && (
         <>
@@ -91,12 +110,14 @@ function LoginRegisterScreen() {
             value={fname}
             onChangeText={(text) => setFname(text)}
             required
+            placeholderTextColor = 'white'
           />
           <TextInput
             style={styles.input}
             placeholder="Last name"
             value={lname}
             onChangeText={(text) => setLname(text)}
+            placeholderTextColor = 'white'
           />
         </>
       )}
@@ -108,6 +129,7 @@ function LoginRegisterScreen() {
         value={email}
         onChangeText={(text) => setEmail(text)}
         required
+        placeholderTextColor = 'white'
       />
 
       <TextInput
@@ -117,6 +139,7 @@ function LoginRegisterScreen() {
         value={password}
         onChangeText={(text) => setPassword(text)}
         required
+        placeholderTextColor = 'white'
       />
 
       {isRegistering ? (
@@ -132,6 +155,7 @@ function LoginRegisterScreen() {
         </Text>
       </Text>
     </View>
+    </ImageBackground>
   );
 }
 
@@ -141,24 +165,59 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 20,
   },
-  header: {
+  header1: {
     fontSize: 24,
     marginBottom: 20,
+    color: 'white',
   },
   input: {
     height: 40,
-    borderColor: 'gray',
+    borderColor: 'white',
     borderWidth: 1,
     marginBottom: 15,
     paddingLeft: 10,
+    color: 'white',
   },
   loginText: {
     marginTop: 20,
     textAlign: 'center',
+    color: 'white',
   },
   link: {
-    color: 'blue',
+    color: 'red',
+    fontWeight:'bold',
+    fontSize: 18,
   },
+  backgroundImage: {
+    flex: 1,
+  },
+  imageStyle: {
+    resizeMode: 'cover',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject, // Makes the overlay cover the entire view
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black
+    opacity:0.2
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  headerText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#ff6347',
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headc: {
+    marginHorizontal:20,
+    marginTop: 20,
+  }
 });
 
 export default LoginRegisterScreen;

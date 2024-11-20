@@ -16,6 +16,7 @@ import SubmitRecipe from '../screens/SubmitRecipe';
 import PersonalizedRecipesScreen from '../screens/PersonalizedRecipesScreen';
 import PersonalizedCollectionScreen from '../screens/personalizedcollections';
 import WelcomeScreen from '../screens/WelcomeScreen';
+import FirePage from '../screens/FirePage';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -35,6 +36,7 @@ const HomeStack = React.memo(({ route }) => {
       <Stack.Screen name="Details" component={Detailsec} options={{ headerShown: false }} />
       <Stack.Screen name="SubmitRecipe" component={SubmitRecipe} options={{ headerShown: false }} />
       <Stack.Screen name="CollectionDetails" component={PersonalizedCollectionScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="firepage" component={FirePage} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 });
@@ -81,7 +83,7 @@ function MainDrawerNavigator() {
       {isLoggedIn && hasFavorites && (
         <Drawer.Screen name="Personalised Collection" component={PersonalizedRecipesScreen} />
       )}
-      <Drawer.Screen name="Recipe Index" component={RecipeIndexScreen} options={{ headerShown: true }} />
+      <Drawer.Screen name="Recipe Index" component={RecipeIndexScreen} options={{ headerShown: false }} />
       <Drawer.Screen 
         name={isLoggedIn ? "Logout" : "Login"} 
         component={isLoggedIn ? () => {

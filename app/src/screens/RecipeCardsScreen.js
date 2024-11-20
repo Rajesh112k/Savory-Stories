@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Image, ActivityIndicator, TouchableOpacity, ImageBackground } from 'react-native';
 import axios from 'axios';
-
+import { Ionicons } from '@expo/vector-icons';
 const RecipeCardsScreen = ({ route, navigation }) => { // Added navigation prop
   const { category } = route.params; // Get the category from route params
   const [recipes, setRecipes] = useState([]);
@@ -33,7 +33,23 @@ const RecipeCardsScreen = ({ route, navigation }) => { // Added navigation prop
   );
 
   return (
+    <ImageBackground 
+      source={require('../../../recipemusic.jpeg')}
+      style={styles.backgroundImage}
+      imageStyle={styles.imageStyle}
+    >
+      <View style={styles.overlay} />
     <View style={styles.container}>
+    <View style={styles.header}>
+      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+      <Text style={styles.headerText}>Savory Stories</Text>
+            </TouchableOpacity>
+          <View style={styles.headerIcons}>
+            <TouchableOpacity onPress={() => navigation.openDrawer()}>
+              <Ionicons name="menu" size={28} color="#ff6347" />
+            </TouchableOpacity>
+          </View>
+        </View>
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" style={styles.loadingIndicator} />
       ) : (
@@ -46,6 +62,7 @@ const RecipeCardsScreen = ({ route, navigation }) => { // Added navigation prop
         />
       )}
     </View>
+    </ImageBackground>
   );
 };
 
@@ -77,7 +94,31 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  headerText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#ff6347',
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backgroundImage: {
+    flex: 1,
+  },
+  imageStyle: {
+    resizeMode: 'cover'
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject, // Makes the overlay cover the entire view
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black
+  },
 });
 
 export default RecipeCardsScreen;

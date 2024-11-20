@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image, ImageBackground } from 'react-native';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 import firebase from '../../../firebase';
 import { Ionicons } from '@expo/vector-icons'; 
@@ -50,6 +50,12 @@ const PersonalizedCollectionScreen = ({ navigation, route }) => {
   );
 
   return (
+    <ImageBackground 
+      source={require('../../../recipemusic.jpeg')}
+      style={styles.backgroundImage}
+      imageStyle={styles.imageStyle}
+    >
+      <View style={styles.overlay} />
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('Home')}>
@@ -57,7 +63,7 @@ const PersonalizedCollectionScreen = ({ navigation, route }) => {
         </TouchableOpacity>
         <View style={styles.headerIcons}>
           <TouchableOpacity onPress={() => navigation.openDrawer()}>
-            <Ionicons name="menu" size={28} color="black" />
+            <Ionicons name="menu" size={28} color="#ff6347" />
           </TouchableOpacity>
         </View>
       </View>
@@ -85,10 +91,21 @@ const PersonalizedCollectionScreen = ({ navigation, route }) => {
         </View>
       </View>
     </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+  },
+  imageStyle: {
+    resizeMode: 'cover'
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject, // Makes the overlay cover the entire view
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black
+  },
   container: {
     flex: 1,
     padding: 16,
@@ -97,6 +114,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: '#ff6347'
   },
   card: {
     margin: 8,

@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ImageBackground, Modal, TextInput } from 'react-native';
+import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ImageBackground, Modal, TextInput, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { SearchBar } from 'react-native-elements';
 import { useDrawerStatus } from '@react-navigation/drawer';
-import { getFirestore, collection, getDocs, addDoc, query, where, updateDoc, doc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, addDoc, query, where, updateDoc, doc, onSnapshot } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import firebase from '../../../firebase'; // Adjust the path if necessary
 
@@ -23,7 +24,8 @@ const HomeScreen = ({ navigation, initialCategory }) => {
   const [collections, setCollections] = useState([]);
   const [numColumns, setNumColumns] = useState(2);
   const drawerOpen = useDrawerStatus() === 'open';
-
+  const auth = getAuth();
+  const isLoggedIn = !!auth.currentUser;
   const fetchRecipesFromFirestore = async () => {
     try {
       const recipesCollection = collection(db, 'Recipes');
@@ -61,26 +63,56 @@ const HomeScreen = ({ navigation, initialCategory }) => {
       });
   };
 
-  const fetchCollectionsFromFirestore = async () => {
-    try {
-      const collectionsSnapshot = await getDocs(collection(db, 'Collections'));
-      const collectionsData = collectionsSnapshot.docs.map(doc => doc.data());
+
+
+  const fetchCollectionsFromFirestore = () => {
+    const userEmail = auth.currentUser ? auth.currentUser.email : null;
+  
+    if (!userEmail) {
+      console.log("User not logged in");
+      return;
+    }
+  
+    const collectionsRef = collection(db, 'Collections');
+    const userCollectionsQuery = query(collectionsRef, where("userEmail", "==", userEmail));
+  
+    // Use onSnapshot for real-time updates
+    const unsubscribe = onSnapshot(userCollectionsQuery, (collectionsSnapshot) => {
+      const collectionsData = collectionsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+  
       setCollections(collectionsData);
+  
       const initialSelectedCollections = collectionsData.reduce((acc, collection) => {
         acc[collection.collectionName] = false;
         return acc;
       }, {});
       setSelectedCollections(initialSelectedCollections);
-    } catch (error) {
-      console.error("Error fetching collections:", error.message);
-    }
+    });
+  
+    // Return the unsubscribe function to clean up the listener when the component unmounts
+    return unsubscribe;
   };
+  
+  
 
   useEffect(() => {
     fetchRecipesFromFirestore();
     fetchTrendingRecipesFromAPI("", initialCategory);
-    fetchCollectionsFromFirestore();
+    
+    // Subscribe to real-time updates for collections
+    const unsubscribeFromCollections = fetchCollectionsFromFirestore();
+  
+    // Clean up the listener when the component unmounts
+    return () => {
+      if (unsubscribeFromCollections) {
+        unsubscribeFromCollections();
+      }
+    };
   }, [initialCategory]);
+  
 
   const updateSearch = (text) => {
     setSearch(text);
@@ -88,7 +120,7 @@ const HomeScreen = ({ navigation, initialCategory }) => {
   };
 
   const addFavorite = async (recipe) => {
-    const auth = getAuth();
+    
     const userEmail = auth.currentUser ? auth.currentUser.email : null;
 
     if (!userEmail) {
@@ -150,65 +182,100 @@ const HomeScreen = ({ navigation, initialCategory }) => {
   const handleDoneButton = async () => {
     const auth = getAuth();
     const userEmail = auth.currentUser ? auth.currentUser.email : null;
-
+  
     if (!userEmail) {
       console.log("User not logged in");
       return;
     }
-
+  
     const collectionName = newCollectionName || Object.keys(selectedCollections).find(key => selectedCollections[key]);
-
+  
     if (!collectionName) {
       console.log("No collection selected or created");
       return;
     }
-
+  
     try {
       const collectionRef = collection(db, 'Collections');
-      const collectionSnapshot = await getDocs(query(collectionRef, where("collectionName", "==", collectionName)));
-
+      const collectionSnapshot = await getDocs(query(collectionRef, where("collectionName", "==", collectionName), where("userEmail", "==", userEmail)));
+  
       if (!collectionSnapshot.empty) {
+        // Collection exists, update it
         const collectionDoc = collectionSnapshot.docs[0];
         const collectionDocRef = doc(db, 'Collections', collectionDoc.id);
-        
+  
         await updateDoc(collectionDocRef, {
           recipes: [...collectionDoc.data().recipes, {
             recipeId: selectedRecipe.id,
             image: selectedRecipe.image,
             title: selectedRecipe.title,
             createdAt: new Date(),
+            userEmail,
           }],
         });
-
-        console.log("Recipe added to collection:", collectionName);
+        console.log("Recipe added to existing collection:", collectionName);
       } else {
-        console.log("Collection not found");
+        // Create new collection
+        const newCollectionRef = await addDoc(collectionRef, {
+          collectionName,
+          userEmail,
+          recipes: [{
+            recipeId: selectedRecipe.id,
+            image: selectedRecipe.image,
+            title: selectedRecipe.title,
+            createdAt: new Date(),
+            userEmail,
+          }],
+        });
+        console.log("New collection created and recipe added:", collectionName);
       }
-
+  
       setPopupVisible(false);
+      fetchCollectionsFromFirestore(); // Refresh collections
     } catch (error) {
       console.error("Error adding recipe to collection:", error.message);
     }
-  };
+  };  
 
   const renderRecipeCard = ({ item }) => (
-    <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Details', { recipeId: item.id })}>
+    
+<TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Details', { recipeId: item.id })}>
+  <Image source={{ uri: item.image }} style={styles.image} />
+  <View style={styles.cardContent}>
+    <Text style={styles.title}>{item.title}</Text>
+    {isLoggedIn && ( // Conditionally render the heart icon
+      <TouchableOpacity onPress={() => addFavorite(item)}>
+        <Ionicons name={favorites.find(fav => fav.id === item.id) ? "heart" : "heart-outline"} size={24} color="red" />
+      </TouchableOpacity>
+    )}
+  </View>
+</TouchableOpacity>
+
+
+  );
+
+  const firepagerender = ({ item }) => (
+    
+    <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('firepage', { recipeId: item.id })}>
       <Image source={{ uri: item.image }} style={styles.image} />
       <View style={styles.cardContent}>
-        <Text style={styles.title}>{item.title}</Text>
-        <TouchableOpacity onPress={() => addFavorite(item)}>
-          <Ionicons name={favorites.find(fav => fav.id === item.id) ? "heart" : "heart-outline"} size={24} color="red" />
-        </TouchableOpacity>
+        <Text style={styles.title}>{item.recipeName}</Text>
+        {isLoggedIn && ( // Conditionally render the heart icon
+          <TouchableOpacity onPress={() => addFavorite(item)}>
+            <Ionicons name={favorites.find(fav => fav.id === item.id) ? "heart" : "heart-outline"} size={24} color="red" />
+          </TouchableOpacity>
+        )}
       </View>
     </TouchableOpacity>
   );
 
   return (
     <ImageBackground 
-      source={require('../../../bg.png')}
+      source={require('../../../recipemusic.jpeg')}
       style={styles.backgroundImage}
       imageStyle={styles.imageStyle}
     >
+      <View style={styles.overlay} />
        
       
       <View style={styles.container}>
@@ -218,7 +285,7 @@ const HomeScreen = ({ navigation, initialCategory }) => {
             </TouchableOpacity>
           <View style={styles.headerIcons}>
             <TouchableOpacity onPress={() => navigation.openDrawer()}>
-              <Ionicons name="menu" size={28} color="black" />
+              <Ionicons name="menu" size={28} color="#ff6347" />
             </TouchableOpacity>
           </View>
         </View>
@@ -235,31 +302,61 @@ const HomeScreen = ({ navigation, initialCategory }) => {
           inputStyle={{ color: 'black' }}
         />
 
-        {trendingRecipes.length > 0 && (
-          <>
-            <Text style={styles.sectionTitle}>Trending Recipes</Text>
-            <FlatList
-              data={trendingRecipes}
-              renderItem={renderRecipeCard}
-              keyExtractor={(item) => item.id.toString()}
-              numColumns={numColumns}
-              style={styles.recipeList}
-            />
-          </>
-        )}
+<ScrollView >
+  {trendingRecipes.length > 0 && (
+    <>
+      <Text style={styles.sectionTitle}>Trending Recipes</Text>
+      <View style={styles.recipeList}>
+        {trendingRecipes.map((item) => (
+          <View key={item.id} style={styles.recipeCard}>
+            {renderRecipeCard({ item })}
+          </View>
+        ))}
+      </View>
+    </>
+  )}
 
-        {latestRecipes.length > 0 && (
-          <>
-            <Text style={styles.sectionTitle}>Latest Recipes</Text>
-            <FlatList
-              data={latestRecipes}
-              renderItem={renderRecipeCard}
-              keyExtractor={(item) => item.id.toString()}
-              numColumns={numColumns}
-              style={styles.recipeList}
-            />
-          </>
-        )}
+  {latestRecipes.length > 0 && (
+    <>
+      <Text style={styles.sectionTitle}>Latest Recipes</Text>
+      <View style={styles.recipeList}>
+        {latestRecipes.map((item) => (
+          <View key={item.id} style={styles.recipeCard}>
+            {firepagerender({ item })}
+          </View>
+        ))}
+      </View>
+    </>
+  )}
+
+<View style={styles.footer}>
+          <Text style={styles.footerText}>© 2024 Savory Stories. All Rights Reserved.</Text>
+          <View style={styles.footerLinks}>
+            <TouchableOpacity onPress={() => navigation.navigate('About')}>
+              <Text style={styles.footerLink}>About Us</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('PrivacyPolicy')}>
+              <Text style={styles.footerLink}>Privacy Policy</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('TermsOfService')}>
+              <Text style={styles.footerLink}>Terms of Service</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.footerSocial}>
+            <TouchableOpacity onPress={() => Linking.openURL('https://facebook.com')}>
+              <Ionicons name="logo-facebook" size={24} color="black" style={styles.socialIcon} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => Linking.openURL('https://twitter.com')}>
+              <Ionicons name="logo-twitter" size={24} color="black" style={styles.socialIcon} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => Linking.openURL('https://instagram.com')}>
+              <Ionicons name="logo-instagram" size={24} color="black" style={styles.socialIcon} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+</ScrollView>
+
 
         {popupVisible && (
           <Modal
@@ -295,40 +392,16 @@ const HomeScreen = ({ navigation, initialCategory }) => {
                   style={styles.newCollectionInput}
                 />
 
-                <TouchableOpacity style={styles.doneButton} onPress={handleDoneButton}>
-                  <Text style={styles.doneButtonText}>Done</Text>
-                </TouchableOpacity>
+<TouchableOpacity style={styles.doneButton} onPress={handleDoneButton}>
+  <Text style={styles.doneButtonText}>Done</Text>
+</TouchableOpacity>
+
               </View>
             </View>
           </Modal>
         )}
-
-<View style={styles.footer}>
-          <Text style={styles.footerText}>© 2024 Savory Stories. All Rights Reserved.</Text>
-          <View style={styles.footerLinks}>
-            <TouchableOpacity onPress={() => navigation.navigate('About')}>
-              <Text style={styles.footerLink}>About Us</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('PrivacyPolicy')}>
-              <Text style={styles.footerLink}>Privacy Policy</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('TermsOfService')}>
-              <Text style={styles.footerLink}>Terms of Service</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.footerSocial}>
-            <TouchableOpacity onPress={() => Linking.openURL('https://facebook.com')}>
-              <Ionicons name="logo-facebook" size={24} color="black" style={styles.socialIcon} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => Linking.openURL('https://twitter.com')}>
-              <Ionicons name="logo-twitter" size={24} color="black" style={styles.socialIcon} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => Linking.openURL('https://instagram.com')}>
-              <Ionicons name="logo-instagram" size={24} color="black" style={styles.socialIcon} />
-            </TouchableOpacity>
-          </View>
-        </View>
       </View>
+
     </ImageBackground>
   );
 };
@@ -338,7 +411,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   imageStyle: {
-    opacity: 0.8,
+    resizeMode: 'cover'
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject, // Makes the overlay cover the entire view
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black
   },
   container: {
     flex: 1,
@@ -358,43 +435,34 @@ const styles = StyleSheet.create({
     color: '#ff6347'
   },
   recipeList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',  // This allows items to wrap to the next row
+    justifyContent: 'space-between',
     marginTop: 10,
   },
   card: {
-    flex: 1,
-    margin: 5,
+    // Set a fixed height for the card
+    height: 285, // Adjust as per your design needs
+    marginBottom: 10,
     backgroundColor: 'white',
-    borderRadius: 8,
+    borderRadius: 10,
     overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
   },
   image: {
-    height: 120,
-    borderRadius: 8,
+    width: '100%',
+    height: 150, // Image height should also be fixed
+    resizeMode: 'cover',
   },
   cardContent: {
+    flex: 1, // Fill the remaining space inside the card
+    justifyContent: 'space-between', // Ensure heart icon stays at the bottom
     padding: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
   },
   title: {
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
-  },
-  footer: {
-    paddingVertical: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  footerText: {
-    fontSize: 12,
-    color: '#555',
+    marginBottom: 10, // Space between title and heart icon
+    flexWrap: 'wrap', // Allow title to wrap if it's too long
   },
   modalOverlay: {
     flex: 1,
@@ -494,7 +562,14 @@ const styles = StyleSheet.create({
   headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
-  }
+  },
+  scrollContainer: {
+    padding: 10,
+  },
+  recipeCard: {
+    width: '48%',  // Ensures two items per row (48% to allow for spacing)
+    marginBottom: 10,  // Adds space between rows
+  },
 });
 
 export default HomeScreen;

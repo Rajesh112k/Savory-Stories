@@ -26,7 +26,7 @@ const RecipeIndexScreen = ({ navigation }) => {
 
   useEffect(() => {
     const fetchImages = async () => {
-      const fetchedImages = {};
+      const fetchedImages = { ...images }; // Preserve the existing state while fetching
       for (const category of RECIPE_CATEGORIES) {
         try {
           const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?query=${category}&number=1&apiKey=01937fb6b13b4bc696c141a148bef97f`);
@@ -40,8 +40,10 @@ const RecipeIndexScreen = ({ navigation }) => {
           console.error(`Error fetching image for ${category}:`, error);
           fetchedImages[category] = null;
         }
+
+        // Update the state incrementally so the UI can render immediately as each image is fetched
+        setImages(fetchedImages);
       }
-      setImages(fetchedImages);
       setLoading(false);
     };
 
@@ -67,13 +69,22 @@ const RecipeIndexScreen = ({ navigation }) => {
   );
 
   return (
-    <ImageBackground source={require('../../../bg.png')} style={styles.backgroundImage}>
+    <ImageBackground source={require('../../../recipemusic.jpeg')}
+    style={styles.backgroundImage}
+    imageStyle={styles.imageStyle}
+    >
+      <View style={styles.overlay} />
       <View style={styles.header}>
+      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+      <Text style={styles.headerText}>Savory Stories</Text>
+            </TouchableOpacity>
+          <View style={styles.headerIcons}>
+            <TouchableOpacity onPress={() => navigation.openDrawer()}>
+              <Ionicons name="menu" size={28} color="#ff6347" />
+            </TouchableOpacity>
+          </View>
+        </View>
         <Text style={styles.headerText}>Recipe Index</Text>
-        <TouchableOpacity onPress={() => navigation.openDrawer()} style={styles.menuButton}>
-          <Ionicons name="menu" size={28} color="black" />
-        </TouchableOpacity>
-      </View>
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" style={styles.loadingIndicator} />
       ) : (
@@ -89,13 +100,19 @@ const RecipeIndexScreen = ({ navigation }) => {
     </ImageBackground>
   );
 };
-//It creates the categories present above
 
 const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
     justifyContent: 'center',
     padding: 10,
+  },
+  imageStyle: {
+    resizeMode: 'cover'
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject, // Makes the overlay cover the entire view
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black
   },
   header: {
     flexDirection: 'row',
@@ -104,8 +121,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   headerText: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
+    color: '#ff6347',
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   menuButton: {
     padding: 10,

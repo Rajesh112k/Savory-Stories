@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, TextInput, Button, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, TextInput, Button, ScrollView, ImageBackground } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getFirestore, collection, query, where, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
@@ -49,9 +49,22 @@ const PersonalizedRecipesScreen = ({ navigation }) => {
   const handleCreateCollection = async () => {
     if (collectionName.trim()) {
       try {
-        const newCollection = { userEmail, collectionName, description, createdAt: new Date() };
+        // Define the new collection object
+        const newCollection = {
+          collectionName, // Name of the collection entered by the user
+          recipes: [],     // Initialize with an empty array for recipes
+          userEmail,       // Associate the collection with the logged-in user's email
+          description,     // Optional description
+          createdAt: new Date(), // Timestamp for when the collection was created
+        };
+  
+        // Add the new collection to Firestore
         const docRef = await addDoc(collection(db, 'Collections'), newCollection);
+  
+        // Update the local collections state
         setCollections([...collections, { id: docRef.id, ...newCollection }]);
+  
+        // Close the modal and reset input fields
         setModalVisible(false);
         setCollectionName('');
         setDescription('');
@@ -60,6 +73,7 @@ const PersonalizedRecipesScreen = ({ navigation }) => {
       }
     }
   };
+  
 
   const handleDeleteCollection = async (collectionId) => {
     try {
@@ -142,17 +156,23 @@ const PersonalizedRecipesScreen = ({ navigation }) => {
   );
 
   return (
+    <ImageBackground 
+      source={require('../../../recipemusic.jpeg')}
+      style={styles.backgroundImage}
+      imageStyle={styles.imageStyle}
+    >
+      <View style={styles.overlay} />
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-          <Text style={styles.headerText}>Savory Stories</Text>
-        </TouchableOpacity>
-        <View style={styles.headerIcons}>
-          <TouchableOpacity onPress={() => navigation.openDrawer()}>
-            <Ionicons name="menu" size={28} color="black" />
-          </TouchableOpacity>
+    <View style={styles.header}>
+      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+      <Text style={styles.headerText}>Savory Stories</Text>
+            </TouchableOpacity>
+          <View style={styles.headerIcons}>
+            <TouchableOpacity onPress={() => navigation.openDrawer()}>
+              <Ionicons name="menu" size={28} color="#ff6347" />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
 
       <Text style={styles.headerText1}>Your Favorite Recipes</Text>
       <Button title="New Collection +" onPress={() => setModalVisible(true)} />
@@ -245,10 +265,21 @@ const PersonalizedRecipesScreen = ({ navigation }) => {
         </View>
       </View>
     </ScrollView>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+  },
+  imageStyle: {
+    resizeMode: 'cover'
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject, // Makes the overlay cover the entire view
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black
+  },
   container: {
     flexGrow: 1,
     padding: 10,
@@ -266,11 +297,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   headerText: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
+    color: '#ff6347',
   },
   headerIcons: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
   recipeGrid: {
     flexDirection: 'column',
@@ -297,6 +330,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     marginBottom: 10,
+    height: 300,
   },
   image: {
     width: '100%',

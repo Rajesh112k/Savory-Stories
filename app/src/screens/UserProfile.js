@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, ActivityIndicator, TouchableOpacity, ImageBackground } from "react-native";
 import { auth, db } from "../../../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { Ionicons } from '@expo/vector-icons';
@@ -70,13 +70,18 @@ function UserProfile() {
   };
 
   return (
-    <>
+    <ImageBackground 
+      source={require('../../../recipemusic.jpeg')}
+      style={styles.backgroundImage}
+      imageStyle={styles.imageStyle}
+    >
+      <View style={styles.overlay} />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('Home')}>
           <Text style={styles.headerText}>Savory Stories</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.openDrawer()}>
-          <Ionicons name="menu" size={28} color="black" />
+          <Ionicons name="menu" size={28} color="#ff6347" />
         </TouchableOpacity>
       </View>
 
@@ -130,9 +135,9 @@ function UserProfile() {
               <Text style={styles.buttonText}>Add a New Recipe</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.addRecipeButton} onPress={() => navigation.navigate('Personalised Collection')}>
+            {/* <TouchableOpacity style={styles.addRecipeButton} onPress={() => navigation.navigate('Personalised Collection')}>
               <Text style={styles.buttonText}>Personalized Collections</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
               <Ionicons name="log-out-outline" size={24} color="white" />
@@ -159,11 +164,21 @@ function UserProfile() {
           </TouchableOpacity>
         </View>
       </View>
-    </>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+  },
+  imageStyle: {
+    resizeMode: 'cover'
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject, // Makes the overlay cover the entire view
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black
+  },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 20 },
   headerText: {
     fontSize: 32,
