@@ -10,7 +10,8 @@ const RecipeCardsScreen = ({ route, navigation }) => { // Added navigation prop
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?query=${category}&number=10&apiKey=01937fb6b13b4bc696c141a148bef97f`);
+        const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?query=${category}&number=10&apiKey=9354b9e260f5494f9f7bdf02165f3086`);
+        //Api Key taken from Spoonacular API
         setRecipes(response.data.results); // Set the fetched recipes
       } catch (error) {
         console.error(`Error fetching recipes for ${category}:`, error);
@@ -35,6 +36,7 @@ const RecipeCardsScreen = ({ route, navigation }) => { // Added navigation prop
   return (
     <ImageBackground 
       source={require('../../../recipemusic.jpeg')}
+      //I have taken it from Unsplash.com.
       style={styles.backgroundImage}
       imageStyle={styles.imageStyle}
     >

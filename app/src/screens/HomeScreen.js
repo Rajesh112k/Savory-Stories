@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ImageBackground, Modal, TextInput, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,6 +9,7 @@ import { getAuth } from 'firebase/auth';
 import firebase from '../../../firebase'; // Adjust the path if necessary
 
 const API_KEY = '6cd5e57794674c35b8c1d5619fbb46b8'; // Replace with your Spoonacular API Key
+//Api Key taken from Spoonacular API
 const db = getFirestore(firebase);
 
 const HomeScreen = ({ navigation, initialCategory }) => {
@@ -63,56 +63,34 @@ const HomeScreen = ({ navigation, initialCategory }) => {
       });
   };
 
-
-
   const fetchCollectionsFromFirestore = () => {
-    const userEmail = auth.currentUser ? auth.currentUser.email : null;
+    try {
+      const collectionsRef = collection(db, 'Collections');
   
-    if (!userEmail) {
-      console.log("User not logged in");
-      return;
+      // Real-time listener for collections
+      const unsubscribe = onSnapshot(collectionsRef, (snapshot) => {
+        const collectionsData = snapshot.docs.map(doc => doc.data());
+        setCollections(collectionsData);
+  
+        const initialSelectedCollections = collectionsData.reduce((acc, collection) => {
+          acc[collection.collectionName] = false;
+          return acc;
+        }, {});
+        setSelectedCollections(initialSelectedCollections);
+      });
+  
+      // Cleanup listener on unmount
+      return () => unsubscribe();
+    } catch (error) {
+      console.error("Error fetching collections:", error.message);
     }
-  
-    const collectionsRef = collection(db, 'Collections');
-    const userCollectionsQuery = query(collectionsRef, where("userEmail", "==", userEmail));
-  
-    // Use onSnapshot for real-time updates
-    const unsubscribe = onSnapshot(userCollectionsQuery, (collectionsSnapshot) => {
-      const collectionsData = collectionsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-  
-      setCollections(collectionsData);
-  
-      const initialSelectedCollections = collectionsData.reduce((acc, collection) => {
-        acc[collection.collectionName] = false;
-        return acc;
-      }, {});
-      setSelectedCollections(initialSelectedCollections);
-    });
-  
-    // Return the unsubscribe function to clean up the listener when the component unmounts
-    return unsubscribe;
   };
-  
-  
 
   useEffect(() => {
     fetchRecipesFromFirestore();
     fetchTrendingRecipesFromAPI("", initialCategory);
-    
-    // Subscribe to real-time updates for collections
-    const unsubscribeFromCollections = fetchCollectionsFromFirestore();
-  
-    // Clean up the listener when the component unmounts
-    return () => {
-      if (unsubscribeFromCollections) {
-        unsubscribeFromCollections();
-      }
-    };
+    fetchCollectionsFromFirestore();
   }, [initialCategory]);
-  
 
   const updateSearch = (text) => {
     setSearch(text);
@@ -239,19 +217,17 @@ const HomeScreen = ({ navigation, initialCategory }) => {
 
   const renderRecipeCard = ({ item }) => (
     
-<TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Details', { recipeId: item.id })}>
-  <Image source={{ uri: item.image }} style={styles.image} />
-  <View style={styles.cardContent}>
-    <Text style={styles.title}>{item.title}</Text>
-    {isLoggedIn && ( // Conditionally render the heart icon
-      <TouchableOpacity onPress={() => addFavorite(item)}>
-        <Ionicons name={favorites.find(fav => fav.id === item.id) ? "heart" : "heart-outline"} size={24} color="red" />
-      </TouchableOpacity>
-    )}
-  </View>
-</TouchableOpacity>
-
-
+    <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Details', { recipeId: item.id })}>
+      <Image source={{ uri: item.image }} style={styles.image} />
+      <View style={styles.cardContent}>
+        <Text style={styles.title}>{item.title}</Text>
+        {isLoggedIn && ( // Conditionally render the heart icon
+          <TouchableOpacity onPress={() => addFavorite(item)}>
+            <Ionicons name={favorites.find(fav => fav.id === item.id) ? "heart" : "heart-outline"} size={24} color="red" />
+          </TouchableOpacity>
+        )}
+      </View>
+    </TouchableOpacity>
   );
 
   const firepagerender = ({ item }) => (
@@ -272,6 +248,7 @@ const HomeScreen = ({ navigation, initialCategory }) => {
   return (
     <ImageBackground 
       source={require('../../../recipemusic.jpeg')}
+      //I have taken it from Unsplash.com.
       style={styles.backgroundImage}
       imageStyle={styles.imageStyle}
     >
@@ -441,28 +418,31 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   card: {
-    // Set a fixed height for the card
-    height: 270, // Adjust as per your design needs
-    marginBottom: 10,
+    flex: 1,
+    margin: 5,
     backgroundColor: 'white',
-    borderRadius: 10,
+    borderRadius: 8,
     overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
   },
   image: {
-    width: '100%',
-    height: 150, // Image height should also be fixed
-    resizeMode: 'cover',
+    height: 120,
+    borderRadius: 8,
   },
   cardContent: {
-    flex: 1, // Fill the remaining space inside the card
-    justifyContent: 'space-between', // Ensure heart icon stays at the bottom
     padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
   },
   title: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
-    marginBottom: 10, // Space between title and heart icon
-    flexWrap: 'wrap', // Allow title to wrap if it's too long
+    color: '#333',
   },
   modalOverlay: {
     flex: 1,
@@ -567,7 +547,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   recipeCard: {
-    width: '48%',  // Ensures two items per row (48% to allow for spacing)
+    width: '50%',  // Ensures two items per row (48% to allow for spacing)
     marginBottom: 10,  // Adds space between rows
   },
 });

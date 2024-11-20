@@ -5,7 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 // Import useNavigation for navigation
 
-const API_KEY = '01937fb6b13b4bc696c141a148bef97f';
+const API_KEY = '9354b9e260f5494f9f7bdf02165f3086';
+//Api Key taken from Spoonacular API
 
 const Detailsec = ({ route }) => {
   const { recipeId } = route.params;
@@ -74,6 +75,7 @@ const Detailsec = ({ route }) => {
   return (
     <ImageBackground 
     source={require('../../../recipemusic.jpeg')}
+    //I have taken it from Unsplash.com.
     style={styles.backgroundImage}
     imageStyle={styles.imageStyle}
   >

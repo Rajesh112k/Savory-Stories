@@ -78,6 +78,7 @@ const WelcomeScreen = ({ navigation }) => {
       </Animated.Text>
       <Animated.Image
         source={require('../../../bg.png')}
+        //I have taken it from "MyRecipeBook: Recipe Keeper" by Poorvi Nayak.
         style={[styles.image, { transform: [{ scale: scaleAnim }, { rotate }] }]}
       />
       <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>

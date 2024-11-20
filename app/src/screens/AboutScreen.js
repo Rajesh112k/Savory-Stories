@@ -5,7 +5,8 @@ import { Ionicons } from '@expo/vector-icons'; // Updated to use Expo's vector i
 const AboutScreen = ({ navigation }) => {
   return (
     <ImageBackground 
-      source={require('../../../recipemusic.jpeg')} // Make sure to use the correct path for your background image
+      source={require('../../../recipemusic.jpeg')} 
+      //I have taken it from Unsplash.com.
       style={styles.backgroundImage}
       imageStyle={styles.imageStyle}
     >

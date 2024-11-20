@@ -11,6 +11,7 @@ function UserProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [updatedFirstName, setUpdatedFirstName] = useState("");
   const [updatedLastName, setUpdatedLastName] = useState("");
+  const [updatedEmail, setUpdatedEmail] = useState(""); // Added state for email
 
   const navigation = useNavigation(); // Get the navigation object
 
@@ -24,6 +25,7 @@ function UserProfile() {
           setUserDetails(data);
           setUpdatedFirstName(data.firstName);
           setUpdatedLastName(data.lastName);
+          setUpdatedEmail(data.email); // Set email to state
         } else {
           console.log("No such user document!");
         }
@@ -72,6 +74,7 @@ function UserProfile() {
   return (
     <ImageBackground 
       source={require('../../../recipemusic.jpeg')}
+      //I have taken it from Unsplash.com.
       style={styles.backgroundImage}
       imageStyle={styles.imageStyle}
     >
@@ -92,6 +95,20 @@ function UserProfile() {
           <>
             <Text style={styles.welcomeText}>Welcome {userDetails.firstName}!</Text>
             <Text style={styles.infoText}>Email: {userDetails.email}</Text>
+            {isEditing ? (
+              <>
+                <Text style={styles.label}>Email:</Text>
+                <TextInput
+                  style={styles.input}
+                  value={updatedEmail}
+                  onChangeText={setUpdatedEmail}
+                  editable={false} // Email is not editable
+                />
+              </>
+            ) : (
+              <Text style={styles.valueText}>{userDetails.email}</Text>
+            )}
+
             <Text style={styles.label}>First Name:</Text>
             {isEditing ? (
               <TextInput
@@ -225,64 +242,63 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10,
+    marginTop: 20,
   },
   button: {
     backgroundColor: '#ff6347',
-    borderRadius: 5,
     padding: 10,
-    width: '48%',
+    borderRadius: 5,
+    marginTop: 10,
+    width: '45%',
     alignItems: 'center',
   },
   buttonText: {
-    color: '#ffffff',
-    fontWeight: 'bold',
+    color: 'white',
+    fontSize: 16,
   },
   addRecipeButton: {
-    backgroundColor: '#32cd32', // Green color for the add recipe button
-    borderRadius: 5,
+    backgroundColor: '#ff6347',
     padding: 10,
-    marginTop: 15,
+    borderRadius: 5,
+    marginTop: 20,
     alignItems: 'center',
-    width: '100%',
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     marginTop: 20,
-    backgroundColor: '#dc143c',
+    backgroundColor: '#333',
     padding: 10,
     borderRadius: 5,
-    width: '100%',
-    justifyContent: 'center',
   },
   logoutText: {
-    color: '#ffffff',
-    marginLeft: 10,
-    fontWeight: 'bold',
-  },
-  errorText: {
-    fontSize: 16,
     color: 'white',
+    fontSize: 18,
+    marginLeft: 10,
   },
   footer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     padding: 20,
-    backgroundColor: '#000',
     alignItems: 'center',
-    justifyContent: 'center',
   },
   footerText: {
-    color: '#ffffff',
+    color: 'white',
     fontSize: 14,
-    marginBottom: 10,
   },
   socialLinks: {
     flexDirection: 'row',
     justifyContent: 'center',
+    marginTop: 10,
   },
   icon: {
-    marginHorizontal: 10,
+    marginHorizontal: 15,
   },
+  errorText: {
+    color: 'white',
+    fontSize: 18,
+    textAlign: 'center',
+  }
 });
 
 export default UserProfile;

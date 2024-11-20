@@ -158,6 +158,7 @@ const PersonalizedRecipesScreen = ({ navigation }) => {
   return (
     <ImageBackground 
       source={require('../../../recipemusic.jpeg')}
+      //I have taken it from Unsplash.com.
       style={styles.backgroundImage}
       imageStyle={styles.imageStyle}
     >
